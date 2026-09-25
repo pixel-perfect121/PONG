@@ -22,40 +22,17 @@ public static class InputManager
     #region Map settings
     public static void ModifyMap(GameMap map, bool enable)
     {
-        if (!MapAvailable(map, out InputActionMap actionMap)) return;
+        if (!mapDictionary.TryGetValue(map, out InputActionMap actionMap) || actionMap == null) return;
 
-        if (enable) actionMap.Enable();
-        else actionMap.Disable();
+        if (enable) actionMap.Enable(); else actionMap.Disable();
     }
-    public static void ModifyOnly(GameMap map, bool enable)
-    {
-        if (!MapAvailable(map, out InputActionMap actionMap)) return;
-
-        if (enable) { ModifyAll(!enable); actionMap.Enable(); }
-        else { ModifyAll(enable); actionMap.Disable(); }
-    }
-    public static void ModifyAll(bool enable)
-    {
-        foreach (var pairs in mapDictionary)
-        {
-            if (pairs.Value == null) continue;
-
-            if (enable) pairs.Value.Enable();
-            else pairs.Value.Disable();
-        }
-    }
+    public static void ModifyOnly(GameMap map, bool enable) { ModifyAll(!enable); ModifyMap(map, enable); }
+    public static void ModifyAll(bool enable) { foreach (var pairs in mapDictionary) ModifyMap(pairs.Key, enable); }
     public static bool MapEnabled(GameMap map)
     {
-        if (!MapAvailable(map, out InputActionMap actionMap)) return false;
+        if (!mapDictionary.TryGetValue(map, out InputActionMap actionMap) || actionMap == null) return false;
 
         return actionMap.enabled;
-    }
-
-    private static bool MapAvailable(GameMap map, out InputActionMap actionMap)
-    {
-        if (!mapDictionary.TryGetValue(map, out actionMap) || actionMap == null) return false;
-
-        return true;
     }
     #endregion
 }
